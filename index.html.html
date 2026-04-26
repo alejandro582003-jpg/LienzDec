@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LienzDec — Maestros del Arte</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --cream: #FAF8F3;
+    --warm-white: #F4F1EA;
+    --border: #E2DDD5;
+    --ink: #1E1C18;
+    --muted: #9A9487;
+    --light-muted: #C4BEB3;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--cream); color: var(--ink); font-family: 'Jost', sans-serif; font-weight: 300; min-height: 100vh; }
+
+  header {
+    background: var(--cream); border-bottom: 1px solid var(--border);
+    padding: 1.1rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 200;
+  }
+  .logo-area { display: flex; align-items: center; gap: 13px; }
+  .logo-box { width: 46px; height: 46px; background: #111; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .logo-box img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+  .brand { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 400; letter-spacing: 0.06em; }
+  nav { display: flex; gap: 2rem; }
+  nav a { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .2s; }
+  nav a:hover { color: var(--ink); }
+
+  .hero { text-align: center; padding: 5rem 2rem 3.5rem; border-bottom: 1px solid var(--border); }
+  .hero-eyebrow { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--light-muted); margin-bottom: 1rem; }
+  .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 300; letter-spacing: 0.03em; margin-bottom: 1rem; }
+  .hero p { font-size: 0.88rem; color: var(--muted); letter-spacing: 0.04em; max-width: 420px; margin: 0 auto; line-height: 1.7; }
+
+  .filter-bar { display: flex; justify-content: center; align-items: center; gap: 0.4rem; padding: 1.4rem 2rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); background: var(--warm-white); }
+  .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Jost', sans-serif; font-size: 0.68rem; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 16px; border-radius: 1px; cursor: pointer; transition: all .2s; }
+  .filter-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .filter-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+  .count-bar { text-align: center; padding: 1.4rem 2rem 0.8rem; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--light-muted); }
+
+  .masonry { column-count: 3; column-gap: 16px; padding: 1rem 2.5rem 5rem; max-width: 1280px; margin: 0 auto; }
+  @media (max-width: 900px) { .masonry { column-count: 2; padding: 1rem 1.5rem 4rem; } }
+  @media (max-width: 540px) { .masonry { column-count: 1; padding: 1rem 1rem 3rem; } }
+
+  .card { break-inside: avoid; margin-bottom: 16px; background: #fff; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; transition: transform .3s cubic-bezier(.2,.8,.3,1), box-shadow .3s; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.09); }
+  .card.hidden { display: none; }
+
+  .card-img-wrap { position: relative; cursor: zoom-in; overflow: hidden; background: #EDE9E0; }
+  .card-img-wrap img { width: 100%; display: block; object-fit: cover; transition: transform .4s cubic-bezier(.2,.8,.3,1); }
+  .card-img-wrap:hover img { transform: scale(1.04); }
+  .zoom-hint { position: absolute; bottom: 8px; right: 8px; background: rgba(30,28,24,0.65); color: #FAF8F3; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 8px; border-radius: 1px; opacity: 0; transition: opacity .25s; pointer-events: none; }
+  .card-img-wrap:hover .zoom-hint { opacity: 1; }
+
+  .card-body { padding: 0.85rem 1rem 1rem; border-top: 1px solid var(--border); }
+  .card-title { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-style: italic; font-weight: 400; color: var(--ink); margin-bottom: 2px; line-height: 1.4; }
+  .card-artist { font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.75rem; }
+  .wa-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--ink); color: var(--cream); font-family: 'Jost', sans-serif; font-size: 0.62rem; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 12px; border-radius: 1px; text-decoration: none; transition: background .2s; }
+  .wa-btn:hover { background: #3a3830; }
+  .wa-icon { width: 12px; height: 12px; fill: var(--cream); flex-shrink: 0; }
+
+  /* LIGHTBOX */
+  .lightbox { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(12,10,8,0.97); flex-direction: column; align-items: center; justify-content: center; animation: lbIn .2s ease; }
+  .lightbox.open { display: flex; }
+  @keyframes lbIn { from { opacity: 0; } to { opacity: 1; } }
+  .lb-close { position: fixed; top: 1.2rem; left: 1.4rem; display: flex; align-items: center; gap: 8px; background: rgba(250,248,243,0.1); border: 1px solid rgba(250,248,243,0.2); color: #FAF8F3; font-family: 'Jost', sans-serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 16px; border-radius: 1px; cursor: pointer; transition: background .2s; z-index: 1001; }
+  .lb-close:hover { background: rgba(250,248,243,0.22); }
+  .lb-close svg { width: 14px; height: 14px; fill: #FAF8F3; }
+  .lb-img-wrap { max-width: min(92vw, 1100px); max-height: 82vh; display: flex; align-items: center; justify-content: center; margin-top: 1rem; }
+  .lb-img-wrap img { max-width: 100%; max-height: 82vh; object-fit: contain; border-radius: 2px; box-shadow: 0 24px 80px rgba(0,0,0,0.7); animation: imgIn .3s cubic-bezier(.2,.8,.3,1); }
+  @keyframes imgIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .lb-info { margin-top: 1.1rem; text-align: center; }
+  .lb-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-style: italic; color: #FAF8F3; letter-spacing: 0.03em; }
+  .lb-artist { font-size: 0.72rem; letter-spacing: 0.1em; color: rgba(250,248,243,0.45); margin-top: 4px; text-transform: uppercase; }
+
+  footer { text-align: center; padding: 2.5rem 2rem; border-top: 1px solid var(--border); background: var(--warm-white); }
+  footer p { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--light-muted); text-transform: uppercase; }
+  .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 0.4rem; display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-box" id="logo-box">
+      <img src="https://drive.google.com/thumbnail?id=Logo_LienzDec_blanco&sz=w200" alt="LienzDec"
+           onerror="this.parentElement.innerHTML='<span style=\'font-family:Cormorant Garamond,serif;color:#fff;font-size:1.1rem;letter-spacing:.05em\'>LD</span>'">
+    </div>
+    <span class="brand">LienzDec</span>
+  </div>
+  <nav>
+    <a href="#">Colección</a>
+    <a href="#">Nosotros</a>
+    <a href="#">Contacto</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <p class="hero-eyebrow">Cuadros Decorativos</p>
+  <h1>Maestros del Arte</h1>
+  <p>Reproducciones de alta calidad de las obras más icónicas de la historia de la pintura</p>
+</section>
+
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">Todos</button>
+  <button class="filter-btn" data-filter="renacimiento">Renacimiento</button>
+  <button class="filter-btn" data-filter="barroco">Barroco</button>
+  <button class="filter-btn" data-filter="impresionismo">Impresionismo</button>
+  <button class="filter-btn" data-filter="romanticismo">Romanticismo</button>
+  <button class="filter-btn" data-filter="moderno">Moderno</button>
+</div>
+
+<div class="count-bar" id="count-label">45 obras disponibles</div>
+<div class="masonry" id="gallery"></div>
+
+<footer>
+  <span class="footer-brand">LienzDec</span>
+  <p>© 2025 · Cuadros Decorativos · Guadalajara, México</p>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lb-close">
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Volver
+  </button>
+  <div class="lb-img-wrap">
+    <img id="lb-img" src="" alt="">
+  </div>
+  <div class="lb-info">
+    <p class="lb-title" id="lb-title"></p>
+    <p class="lb-artist" id="lb-artist"></p>
+  </div>
+</div>
+
+<script>
+const WA = "523342034525";
+
+const obras = [
+  { url: "https://i.ibb.co/b5PGMvCf/01-Mona-Lisa-by-Leonardo-Da-Vinci-PD02.jpg", title: "Mona Lisa", artist: "Leonardo Da Vinci", cat: "renacimiento", h: 290 },
+  { url: "https://i.ibb.co/jPHM0k4f/02-Lady-with-an-Ermine-by-Leonardo-da-Vinci-PD02.jpg", title: "Lady with an Ermine", artist: "Leonardo da Vinci", cat: "renacimiento", h: 320 },
+  { url: "https://i.ibb.co/d4LdhB47/03-Girl-with-a-Pearl-Earring-by-Johannes-Vermeer-PD02.jpg", title: "Girl with a Pearl Earring", artist: "Johannes Vermeer", cat: "barroco", h: 340 },
+  { url: "https://i.ibb.co/Z61LHw5V/04-Las-Meninas-by-Diego-Vel-zquez-PD02.jpg", title: "Las Meninas", artist: "Diego Velázquez", cat: "barroco", h: 360 },
+  { url: "https://i.ibb.co/KzpYg5Fm/05-The-Storm-on-the-Sea-of-Galilee-by-Rembrandt-PD02.jpg", title: "The Storm on the Sea of Galilee", artist: "Rembrandt", cat: "barroco", h: 280 },
+  { url: "https://i.ibb.co/Vck3dm2j/06-The-Woman-with-a-Parasol-by-Claude-Oscar-Monet-PD02.jpg", title: "The Woman with a Parasol", artist: "Claude Oscar Monet", cat: "impresionismo", h: 320 },
+  { url: "https://i.ibb.co/RkWNhyKR/07-Dante-And-Virgil-In-Hell-by-William-Adolphe-Bouguereau-PD02.jpg", title: "Dante and Virgil in Hell", artist: "William-Adolphe Bouguereau", cat: "romanticismo", h: 350 },
+  { url: "https://i.ibb.co/FLt7phcg/08-Napoleon-Crossing-the-Alps-by-Jacques-Louis-David-PD02.jpg", title: "Napoleon Crossing the Alps", artist: "Jacques-Louis David", cat: "romanticismo", h: 340 },
+  { url: "https://i.ibb.co/RGyDWv5q/09-St-George-and-the-Dragon-by-Raphael-Raffaello-PD02.jpg", title: "St. George and the Dragon", artist: "Rafael Raffaello", cat: "renacimiento", h: 310 },
+  { url: "https://i.ibb.co/B5fv8ggY/10-The-Swing-by-Jean-Honor-Fragonard-PD02.jpg", title: "The Swing", artist: "Jean-Honoré Fragonard", cat: "romanticismo", h: 340 },
+  { url: "https://i.ibb.co/hJ2MgY4x/11-When-Will-You-Marry-by-Paul-Gauguin-PD02.jpg", title: "When Will You Marry", artist: "Paul Gauguin", cat: "moderno", h: 280 },
+  { url: "https://i.ibb.co/8gqp2Lkz/12-View-of-Toledo-by-El-Greco-PD02.jpg", title: "View of Toledo", artist: "El Greco", cat: "renacimiento", h: 350 },
+  { url: "https://i.ibb.co/XPfD2WN/13-Wanderer-above-the-Sea-of-Fog-by-Caspar-David-Friedrich-PD02.jpg", title: "Wanderer above the Sea of Fog", artist: "Caspar David Friedrich", cat: "romanticismo", h: 380 },
+  { url: "https://i.ibb.co/DHP4DFtn/14-The-Scream-by-Edvard-Munch-PD02.jpg", title: "The Scream", artist: "Edvard Munch", cat: "moderno", h: 360 },
+  { url: "https://i.ibb.co/sd8X3mVB/15-The-Kiss-by-Gustav-Klimt-PD02.jpg", title: "The Kiss", artist: "Gustav Klimt", cat: "moderno", h: 370 },
+  { url: "https://i.ibb.co/hR90S0RJ/16-The-Arnolfini-Portrait-by-Jan-van-Eyck-PD02.jpg", title: "The Arnolfini Portrait", artist: "Jan van Eyck", cat: "renacimiento", h: 360 },
+  { url: "https://i.ibb.co/HfLzm0CD/17-American-Gothic-by-Grant-Wood-PD02.jpg", title: "American Gothic", artist: "Grant Wood", cat: "moderno", h: 330 },
+  { url: "https://i.ibb.co/fGnkw6KC/18-Battle-Of-Issus-by-Albrecht-Altdorfer-PD02.jpg", title: "Battle of Issus", artist: "Albrecht Altdorfer", cat: "renacimiento", h: 270 },
+  { url: "https://i.ibb.co/nqt5yVHy/19-Bacchus-by-Caravaggio-PD02.jpg", title: "Bacchus", artist: "Caravaggio", cat: "barroco", h: 340 },
+  { url: "https://i.ibb.co/MDDmZCzv/20-La-Virgen-de-los-Lirios-by-Willian-Adolphe-Bouguereau-PD02.jpg", title: "La Virgen de los Lirios", artist: "William-Adolphe Bouguereau", cat: "romanticismo", h: 360 },
+  { url: "https://i.ibb.co/bRzK3mLB/21-The-Starry-Night-By-Vincent-Van-Gogh-PD02.jpg", title: "The Starry Night", artist: "Vincent Van Gogh", cat: "moderno", h: 280 },
+  { url: "https://i.ibb.co/bjCVdwvp/22-The-Gulf-Stream-by-Winslow-Homer-PD02.jpg", title: "The Gulf Stream", artist: "Winslow Homer", cat: "moderno", h: 300 },
+  { url: "https://i.ibb.co/twCFXNYg/23-The-Birth-of-Venus-by-Sandro-Botticelli-PD02.jpg", title: "The Birth of Venus", artist: "Sandro Botticelli", cat: "renacimiento", h: 260 },
+  { url: "https://i.ibb.co/jPhhvgqb/24-Stag-Night-At-Sharkeys-by-George-Bellows-PD02.jpg", title: "Stag Night at Sharkey's", artist: "George Bellows", cat: "moderno", h: 300 },
+  { url: "https://i.ibb.co/DDCQ75Jf/25-The-Raft-of-the-Medusa-by-Th-odore-G-ricault-PD02.jpg", title: "The Raft of the Medusa", artist: "Théodore Géricault", cat: "romanticismo", h: 270 },
+  { url: "https://i.ibb.co/d44LVN8s/26-The-Triumph-of-Venus-by-Francois-Boucher-PD02.jpg", title: "The Triumph of Venus", artist: "François Boucher", cat: "barroco", h: 290 },
+  { url: "https://i.ibb.co/FkfW4gr5/27-A-Bar-at-the-Folies-Berg-re-by-douard-Manet-PD02.jpg", title: "A Bar at the Folies-Bergère", artist: "Édouard Manet", cat: "impresionismo", h: 290 },
+  { url: "https://i.ibb.co/MkZH5jcB/28-A-Cotton-Office-In-New-Orleans-by-Edgar-Degas-PD02.jpg", title: "A Cotton Office in New Orleans", artist: "Edgar Degas", cat: "impresionismo", h: 280 },
+  { url: "https://i.ibb.co/zH8VbWyp/29-Bal-du-moulin-de-la-Galette-by-Pierre-Auguste-Renoir-PD02.jpg", title: "Bal du Moulin de la Galette", artist: "Pierre-Auguste Renoir", cat: "impresionismo", h: 280 },
+  { url: "https://i.ibb.co/DfkxPfZ4/30-A-Sunday-Afternoon-on-the-Island-of-La-Grande-Jatte-by-Georges-Seurat-PD02.jpg", title: "A Sunday on La Grande Jatte", artist: "Georges Seurat", cat: "impresionismo", h: 260 },
+  { url: "https://i.ibb.co/DfNZ3v5n/31-Luncheon-of-the-Boating-Party-by-Pierre-Auguste-Renoir-PD02.jpg", title: "Luncheon of the Boating Party", artist: "Pierre-Auguste Renoir", cat: "impresionismo", h: 270 },
+  { url: "https://i.ibb.co/8LWJYdw9/32-Le-D-jeuner-sur-l-herbe-by-douard-Manet-PD02.jpg", title: "Le Déjeuner sur l'herbe", artist: "Édouard Manet", cat: "impresionismo", h: 280 },
+  { url: "https://i.ibb.co/fd2XbGPY/33-Liberty-Leading-the-People-by-Eug-ne-Delacroix-PD02.jpg", title: "Liberty Leading the People", artist: "Eugène Delacroix", cat: "romanticismo", h: 280 },
+  { url: "https://i.ibb.co/m5t36qMf/34-The-Card-Players-by-Paul-C-zanne-PD02.jpg", title: "The Card Players", artist: "Paul Cézanne", cat: "moderno", h: 290 },
+  { url: "https://i.ibb.co/Y4hnRQx6/35-Wheat-Field-with-Cypresses-at-the-Haude-Galline-near-Eygalieres-by-Vincent-van-Gogh-PD02.jpg", title: "Wheat Field with Cypresses", artist: "Vincent van Gogh", cat: "moderno", h: 270 },
+  { url: "https://i.ibb.co/dsB74M6T/36-The-Third-of-May-1808-by-Francisco-Goya-PD02.jpg", title: "The Third of May 1808", artist: "Francisco Goya", cat: "romanticismo", h: 280 },
+  { url: "https://i.ibb.co/vCk56Bm4/37-The-Sleeping-Gypsy-by-Henri-Rousseau-PD02.jpg", title: "The Sleeping Gypsy", artist: "Henri Rousseau", cat: "moderno", h: 270 },
+  { url: "https://i.ibb.co/hx4h7BL0/38-The-Night-Watch-by-Rembrandt-PD02.jpg", title: "The Night Watch", artist: "Rembrandt", cat: "barroco", h: 270 },
+  { url: "https://i.ibb.co/jvGJP02K/39-The-Lady-Of-Shalott-by-John-William-Waterhouse-PD02.jpg", title: "The Lady of Shalott", artist: "John William Waterhouse", cat: "romanticismo", h: 290 },
+  { url: "https://i.ibb.co/Q3pnDC95/40-The-Harvesters-by-Pieter-Bruegel-the-Elder-PD02.jpg", title: "The Harvesters", artist: "Pieter Bruegel the Elder", cat: "renacimiento", h: 270 },
+  { url: "https://i.ibb.co/N2NNJCpY/41-Boulevard-Montmartre-Spring-by-Camille-Pissarro-PD02.jpg", title: "Boulevard Montmartre, Spring", artist: "Camille Pissarro", cat: "impresionismo", h: 280 },
+  { url: "https://i.ibb.co/DDTML42V/42-Impression-Sunrise-by-Claude-Monet-PD02.jpg", title: "Impression, Sunrise", artist: "Claude Monet", cat: "impresionismo", h: 280 },
+  { url: "https://i.ibb.co/Vh6cJrX/43-Paris-Street-In-Rainy-Weather-by-Gustave-Caillebotte-PD02.jpg", title: "Paris Street in Rainy Weather", artist: "Gustave Caillebotte", cat: "impresionismo", h: 290 },
+  { url: "https://i.ibb.co/Wvgrz4D7/44-Saint-Jerome-Writing-by-Caravaggio-PD02.jpg", title: "Saint Jerome Writing", artist: "Caravaggio", cat: "barroco", h: 320 },
+  { url: "https://i.ibb.co/GffwmVmD/45-Breezing-Up-also-known-as-A-Fair-Wind-by-Winslow-Homer-PD02.jpg", title: "Breezing Up (A Fair Wind)", artist: "Winslow Homer", cat: "moderno", h: 270 }
+];
+
+const waIconSVG = `<svg class="wa-icon" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.556 4.117 1.529 5.845L.057 23.428a.75.75 0 0 0 .916.916l5.583-1.472A11.953 11.953 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.712 9.712 0 0 1-4.95-1.354l-.354-.212-3.664.966.982-3.582-.23-.368A9.712 9.712 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>`;
+
+const gallery = document.getElementById('gallery');
+const countLabel = document.getElementById('count-label');
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbTitle = document.getElementById('lb-title');
+const lbArtist = document.getElementById('lb-artist');
+
+obras.forEach(o => {
+  const msg = encodeURIComponent(`Hola, me interesa el cuadro "${o.title}" (${o.artist}) del catálogo LienzDec. ¿Me pueden dar más información?`);
+  const waLink = `https://wa.me/${WA}?text=${msg}`;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.cat = o.cat;
+  card.innerHTML = `
+    <div class="card-img-wrap"
+         data-url="${o.url}"
+         data-title="${o.title.replace(/"/g,'&quot;')}"
+         data-artist="${o.artist.replace(/"/g,'&quot;')}">
+      <img src="${o.url}" alt="${o.title}" style="height:${o.h}px" loading="lazy">
+      <span class="zoom-hint">Ver completo</span>
+    </div>
+    <div class="card-body">
+      <p class="card-title">${o.title}</p>
+      <p class="card-artist">${o.artist}</p>
+      <a class="wa-btn" href="${waLink}" target="_blank" rel="noopener">${waIconSVG} Consultar</a>
+    </div>`;
+  gallery.appendChild(card);
+});
+
+// Lightbox
+gallery.addEventListener('click', e => {
+  const wrap = e.target.closest('.card-img-wrap');
+  if (!wrap) return;
+  lbImg.src = wrap.dataset.url;
+  lbImg.alt = wrap.dataset.title;
+  lbTitle.textContent = wrap.dataset.title;
+  lbArtist.textContent = wrap.dataset.artist;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+});
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => { lbImg.src = ''; }, 300);
+}
+document.getElementById('lb-close').addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// Filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    let visible = 0;
+    document.querySelectorAll('.card').forEach(card => {
+      const show = filter === 'all' || card.dataset.cat === filter;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    countLabel.textContent = visible + (visible === 1 ? ' obra disponible' : ' obras disponibles');
+  });
+});
+</script>
+</body>
+</html>
