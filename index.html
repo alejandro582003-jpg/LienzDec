@@ -52,8 +52,9 @@
   .cat-card:hover .cat-arrow { color: var(--ink); gap: 8px; }
   .cat-arrow svg { width: 12px; height: 12px; fill: currentColor; }
 
-  .masonry { column-count: 3; column-gap: 14px; padding: 1rem 2rem 5rem; max-width: 1280px; margin: 0 auto; }
-  @media (max-width: 860px) { .masonry { column-count: 2; padding: 0.8rem 1rem 4rem; column-gap: 10px; } }
+  /* Ajustado el padding inferior para dar espacio a la paginación */
+  .masonry { column-count: 3; column-gap: 14px; padding: 1rem 2rem 2rem; max-width: 1280px; margin: 0 auto; }
+  @media (max-width: 860px) { .masonry { column-count: 2; padding: 0.8rem 1rem 2rem; column-gap: 10px; } }
 
   .img-card { break-inside: avoid; margin-bottom: 14px; background: #fff; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; transition: transform .3s cubic-bezier(.2,.8,.3,1), box-shadow .3s; }
   .img-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); }
@@ -71,6 +72,13 @@
   .wa-btn:hover { background: #3a3830; }
   @media (max-width: 860px) { .wa-btn { padding: 7px 12px; font-size: 0.62rem; } }
   .wa-icon { width: 11px; height: 11px; fill: var(--cream); flex-shrink: 0; }
+
+  /* Estilos para la paginación */
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; padding: 0 2rem 4rem; max-width: 1280px; margin: 0 auto; }
+  .pagination button { background: transparent; border: 1px solid var(--border); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 14px; border-radius: 1px; cursor: pointer; transition: all .2s; }
+  .pagination button:hover:not(:disabled) { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .pagination button:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--border); color: var(--muted); background: transparent; }
+  .pagination span { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.05em; }
 
   .view { display: none; }
   .view.active { display: block; }
@@ -123,7 +131,6 @@
   <span class="current" id="bc-sub"></span>
 </div>
 
-<!-- HOME -->
 <div class="view active" id="view-home">
   <section class="hero">
     <p class="hero-eyebrow">Cuadros Decorativos</p>
@@ -134,7 +141,6 @@
   <div class="cat-grid" id="cat-grid"></div>
 </div>
 
-<!-- SUBCATEGORÍAS -->
 <div class="view" id="view-subcats">
   <button class="back-btn" onclick="goHome()">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
@@ -144,7 +150,6 @@
   <div class="cat-grid" id="subcat-grid"></div>
 </div>
 
-<!-- GALERÍA -->
 <div class="view" id="view-gallery">
   <button class="back-btn" id="gallery-back-btn">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
@@ -152,6 +157,12 @@
   </button>
   <div class="section-label" id="gallery-title"></div>
   <div class="masonry" id="gallery-grid"></div>
+  
+  <div class="pagination" id="pagination-controls" style="display: none;">
+    <button id="page-prev" onclick="changePage(-1)">Anterior</button>
+    <span id="page-info"></span>
+    <button id="page-next" onclick="changePage(1)">Siguiente</button>
+  </div>
 </div>
 
 <footer>
@@ -324,7 +335,36 @@ const catalogo = [
         { url: "https://i.ibb.co/N8sykjc/AN01-17-PD2.jpg", title: "Águila 17", sub: "", h: 280 },
         { url: "https://i.ibb.co/JwgZ2cjJ/AN01-18-PD2.jpg", title: "Águila 18", sub: "", h: 280 }
       ] },
-      { id: "acuaticos", name: "Acuáticos", cover: "", images: [] },
+      { 
+        id: "acuaticos", 
+        name: "Acuáticos", 
+        cover: "https://i.ibb.co/cS8NV77j/AN02-01-PD2.jpg", 
+        images: [
+          { url: "https://i.ibb.co/cS8NV77j/AN02-01-PD2.jpg", title: "Acuático 01", sub: "", h: 280 },
+          { url: "https://i.ibb.co/0VmtH25K/AN02-02-PD2.jpg", title: "Acuático 02", sub: "", h: 280 },
+          { url: "https://i.ibb.co/60X9f2VP/AN02-03-PD2.jpg", title: "Acuático 03", sub: "", h: 280 },
+          { url: "https://i.ibb.co/VYb3GxtK/AN02-04-PD2.jpg", title: "Acuático 04", sub: "", h: 280 },
+          { url: "https://i.ibb.co/0V6Zxgvz/AN02-05-PD2.jpg", title: "Acuático 05", sub: "", h: 280 },
+          { url: "https://i.ibb.co/5Xwr4m1X/AN02-06-PD2.jpg", title: "Acuático 06", sub: "", h: 280 },
+          { url: "https://i.ibb.co/0y13fN6t/AN02-07-PD2.jpg", title: "Acuático 07", sub: "", h: 280 },
+          { url: "https://i.ibb.co/mF1Vcxkm/AN02-08-PD2.jpg", title: "Acuático 08", sub: "", h: 280 },
+          { url: "https://i.ibb.co/Z6538FRY/AN02-09-PD2.jpg", title: "Acuático 09", sub: "", h: 280 },
+          { url: "https://i.ibb.co/bMtb9VVN/AN02-10-PD2.jpg", title: "Acuático 10", sub: "", h: 280 },
+          { url: "https://i.ibb.co/gMksnfkf/AN02-11-PD2.jpg", title: "Acuático 11", sub: "", h: 280 },
+          { url: "https://i.ibb.co/wN4N03th/AN02-12-PD2.jpg", title: "Acuático 12", sub: "", h: 280 },
+          { url: "https://i.ibb.co/zWPYzKTZ/AN02-13-PD2.jpg", title: "Acuático 13", sub: "", h: 280 },
+          { url: "https://i.ibb.co/679yZ361/AN02-14-PD2.jpg", title: "Acuático 14", sub: "", h: 280 },
+          { url: "https://i.ibb.co/GDdPMs7/AN02-15-PD2.jpg", title: "Acuático 15", sub: "", h: 280 },
+          { url: "https://i.ibb.co/438LWNw/AN02-16-PD2.jpg", title: "Acuático 16", sub: "", h: 280 },
+          { url: "https://i.ibb.co/mFCNRQ2W/AN02-17-PD2.jpg", title: "Acuático 17", sub: "", h: 280 },
+          { url: "https://i.ibb.co/n8r4dzNZ/AN02-18-PD2.jpg", title: "Acuático 18", sub: "", h: 280 },
+          { url: "https://i.ibb.co/DgDNykWW/AN02-19-PD2.jpg", title: "Acuático 19", sub: "", h: 280 },
+          { url: "https://i.ibb.co/tMhBLwrg/AN02-20-PD2.jpg", title: "Acuático 20", sub: "", h: 280 },
+          { url: "https://i.ibb.co/8gMBxmDM/AN02-21-PD2.jpg", title: "Acuático 21", sub: "", h: 280 },
+          { url: "https://i.ibb.co/Cs6S2k5J/AN02-22-PD2.jpg", title: "Acuático 22", sub: "", h: 280 },
+          { url: "https://i.ibb.co/9mQ1vRkc/AN02-23-PD2.jpg", title: "Acuático 23", sub: "", h: 280 }
+        ] 
+      },
       { id: "guacamayos", name: "Guacamayos", cover: "", images: [] }
     ]
   }
@@ -335,6 +375,13 @@ const waIconSVG = `<svg class="wa-icon" viewBox="0 0 24 24"><path d="M17.472 14.
 const arrowSVG = `<svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>`;
 
 let currentCat = null, currentSubcat = null;
+
+// Variables globales para la paginación
+let currentPage = 1;
+const itemsPerPage = 40;
+let currentGalleryImages = [];
+let currentGalleryTitle = "";
+let currentGalleryHasParent = false;
 
 function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -389,7 +436,7 @@ function renderHome() {
 function openCategory(cat) {
   currentCat = cat; currentSubcat = null; updateBreadcrumb();
   if (cat.subcats) { renderSubcats(cat); showView('view-subcats'); }
-  else { renderGallery(cat.images, cat.name, false); showView('view-gallery'); }
+  else { renderGallery(cat.images, cat.name, false, 1); showView('view-gallery'); }
 }
 
 function renderSubcats(cat) {
@@ -417,20 +464,37 @@ function renderSubcats(cat) {
 
 function openSubcat(sub) {
   currentSubcat = sub; updateBreadcrumb();
-  renderGallery(sub.images, sub.name, true); showView('view-gallery');
+  renderGallery(sub.images, sub.name, true, 1); showView('view-gallery');
 }
 
-function renderGallery(images, title, hasParent) {
+// Renderizar la galería con paginación
+function renderGallery(images, title, hasParent, page = 1) {
+  currentPage = page;
+  currentGalleryImages = images;
+  currentGalleryTitle = title;
+  currentGalleryHasParent = hasParent;
+
   document.getElementById('gallery-title').textContent = title;
   document.getElementById('gallery-back-btn').onclick = hasParent ? goToCategory : goHome;
+  
   const grid = document.getElementById('gallery-grid');
+  const paginationControls = document.getElementById('pagination-controls');
   grid.innerHTML = '';
+
   if (!images || images.length === 0) {
     grid.innerHTML = '<p class="empty-msg">Imágenes próximamente</p>';
+    paginationControls.style.display = 'none';
     return;
   }
+
+  // Lógica de Paginación
+  const totalPages = Math.ceil(images.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedImages = images.slice(startIndex, endIndex);
+
   const scale = window.innerWidth <= 860 ? 0.65 : 1;
-  images.forEach(img => {
+  paginatedImages.forEach(img => {
     const msg = encodeURIComponent(`Hola, me interesa el cuadro "${img.title}" del catálogo LienzDec. ¿Me pueden dar más información?`);
     const h = Math.round((img.h || 280) * scale);
     const card = document.createElement('div');
@@ -447,6 +511,39 @@ function renderGallery(images, title, hasParent) {
       </div>`;
     grid.appendChild(card);
   });
+
+  renderPaginationControls(totalPages);
+}
+
+// Configurar los botones de paginación
+function renderPaginationControls(totalPages) {
+  const controls = document.getElementById('pagination-controls');
+  
+  if (totalPages <= 1) {
+    controls.style.display = 'none';
+    return;
+  }
+  
+  controls.style.display = 'flex';
+  const prevBtn = document.getElementById('page-prev');
+  const nextBtn = document.getElementById('page-next');
+  const pageInfo = document.getElementById('page-info');
+
+  prevBtn.disabled = currentPage === 1;
+  nextBtn.disabled = currentPage === totalPages;
+  pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+}
+
+// Función que se activa al darle clic a Anterior / Siguiente
+function changePage(delta) {
+  const totalPages = Math.ceil(currentGalleryImages.length / itemsPerPage);
+  let newPage = currentPage + delta;
+  
+  if (newPage >= 1 && newPage <= totalPages) {
+    renderGallery(currentGalleryImages, currentGalleryTitle, currentGalleryHasParent, newPage);
+    // Subir un poco la vista al título de la galería al cambiar de página
+    document.getElementById('gallery-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // ── LIGHTBOX ───────────────────────────────────────────────────────────────
@@ -479,5 +576,4 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
 renderHome();
 </script>
 </body>
-</html>
 </html>
