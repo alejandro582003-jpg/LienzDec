@@ -709,7 +709,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
 
 // ── BUSCADOR GLOBAL ────────────────────────────────────────────────────────
 
-// Construye un índice plano de todas las imágenes del catálogo
 function buildSearchIndex() {
   const index = [];
   catalogo.forEach(cat => {
@@ -728,8 +727,6 @@ function buildSearchIndex() {
   return index;
 }
 
-const searchIndex = buildSearchIndex();
-
 function renderSearchResults(query) {
   const q = query.trim().toLowerCase();
   if (!q) { clearSearch(); return; }
@@ -742,6 +739,7 @@ function renderSearchResults(query) {
   });
 
   showView('view-search');
+  currentCat = null; currentSubcat = null;
   updateBreadcrumb();
   document.getElementById('search-results-title').textContent = `"${query}"`;
   document.getElementById('search-results-count').textContent =
@@ -754,7 +752,7 @@ function renderSearchResults(query) {
 
   if (results.length === 0) {
     grid.innerHTML = `
-      <div class="no-results" style="column-span:all">
+      <div class="no-results" style="grid-column:1/-1;column-span:all">
         <p>No encontramos nada</p>
         <span>Intenta con otro término — artista, categoría o nombre de obra</span>
       </div>`;
@@ -769,8 +767,8 @@ function renderSearchResults(query) {
     const card = document.createElement('div');
     card.className = 'img-card';
     card.innerHTML = `
-      <div class="img-wrap" data-url="${img.url}" data-title="${(img.title||'').replace(/"/g,'&quot;')}" data-sub="${(img.sub||'').replace(/"/g,'&quot;')}" data-grid="search">
-        <img src="${img.url}" alt="${img.title}" style="height:${h}px" loading="lazy">
+      <div class="img-wrap" data-url="${img.url}" data-title="${(img.title||'').replace(/"/g,'&quot;')}" data-sub="${(img.sub||'').replace(/"/g,'&quot;')}">
+        <img src="${img.url}" alt="${img.title||''}" style="height:${h}px" loading="lazy">
         <img class="watermark" src="https://i.ibb.co/wNbS2Yn1/Logo-Lienz-Dec-recortado-removebg-preview.png" alt="" draggable="false">
         <span class="zoom-hint">Ver completo</span>
       </div>
@@ -784,7 +782,17 @@ function renderSearchResults(query) {
   });
 }
 
-// Lightbox también para resultados de búsqueda
+function clearSearch() {
+  const input = document.getElementById('search-input');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('search-clear');
+  const searchIcon = document.getElementById('search-icon');
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (searchIcon) searchIcon.style.display = '';
+  goHome();
+}
+
+// Lightbox para resultados de búsqueda
 document.getElementById('search-grid').addEventListener('click', e => {
   const wrap = e.target.closest('.img-wrap');
   if (!wrap) return;
@@ -796,15 +804,13 @@ document.getElementById('search-grid').addEventListener('click', e => {
   document.body.style.overflow = 'hidden';
 });
 
-function clearSearch() {
-  const input = document.getElementById('search-input');
-  input.value = '';
-  document.getElementById('search-clear').style.display = 'none';
-  document.getElementById('search-icon').style.display = '';
-  goHome();
-}
+// ── INIT ───────────────────────────────────────────────────────────────────
+renderHome();
 
-// Listener del input con debounce para no buscar en cada tecla
+// Construir índice DESPUÉS de que catalogo está definido
+const searchIndex = buildSearchIndex();
+
+// Listener del buscador
 let searchTimer;
 document.getElementById('search-input').addEventListener('input', function() {
   const q = this.value.trim();
@@ -816,9 +822,6 @@ document.getElementById('search-input').addEventListener('input', function() {
   if (!q) { clearSearch(); return; }
   searchTimer = setTimeout(() => renderSearchResults(this.value), 300);
 });
-
-// ── INIT ───────────────────────────────────────────────────────────────────
-renderHome();
 </script>
 </body>
 </html>
