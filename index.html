@@ -74,10 +74,26 @@
   .img-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); }
 
   .img-wrap { position: relative; cursor: zoom-in; overflow: hidden; background: #EDE9E0; }
-  .img-wrap img { width: 100%; display: block; object-fit: cover; transition: transform .4s cubic-bezier(.2,.8,.3,1); }
-  .img-wrap:hover img { transform: scale(1.04); }
+  .img-wrap img { width: 100%; display: block; object-fit: cover; transition: transform .4s cubic-bezier(.2,.8,.3,1), opacity .3s; opacity: 0; }
+  .img-wrap img.loaded { opacity: 1; }
+  .img-wrap:hover img.loaded { transform: scale(1.04); }
   .zoom-hint { position: absolute; bottom: 7px; right: 7px; background: rgba(30,28,24,0.65); color: #FAF8F3; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 7px; border-radius: 1px; opacity: 0; transition: opacity .25s; pointer-events: none; }
   .img-wrap:hover .zoom-hint { opacity: 1; }
+
+  /* Skeleton loading */
+  .skeleton {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, #EDE9E0 25%, #E4DFD6 50%, #EDE9E0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    z-index: 1;
+    transition: opacity .3s;
+  }
+  .skeleton.hidden { opacity: 0; pointer-events: none; }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
   .watermark { position: absolute; bottom: 8px; left: 8px; width: 28%; max-width: 90px; opacity: 0.22; pointer-events: none; user-select: none; transition: opacity .3s; z-index: 2; filter: brightness(0) invert(1); }
   .img-wrap:hover .watermark { opacity: 0.15; }
   .lb-img-wrap { position: relative; }
@@ -606,13 +622,6 @@ function updateBreadcrumb() {
   else { sep.style.display = 'none'; bcSub.textContent = ''; }
 }
 
-function goHome() {
-  currentCat = null; currentSubcat = null;
-  updateBreadcrumb();
-  history.replaceState(null, '', window.location.pathname);
-  showView('view-home');
-}
-
 function goToCategory() { if (currentCat) openCategory(currentCat); }
 
 function renderHome() {
@@ -640,13 +649,6 @@ function renderHome() {
   });
 }
 
-function openCategory(cat) {
-  currentCat = cat; currentSubcat = null; updateBreadcrumb();
-  history.replaceState(null, '', '#' + cat.id);
-  if (cat.subcats) { renderSubcats(cat); showView('view-subcats'); }
-  else { renderGallery(cat.images, cat.name, false, 1); showView('view-gallery'); }
-}
-
 function renderSubcats(cat) {
   document.getElementById('subcat-title').textContent = cat.name;
   const grid = document.getElementById('subcat-grid');
@@ -668,12 +670,6 @@ function renderSubcats(cat) {
     card.addEventListener('click', () => openSubcat(sub));
     grid.appendChild(card);
   });
-}
-
-function openSubcat(sub) {
-  currentSubcat = sub; updateBreadcrumb();
-  history.replaceState(null, '', '#' + currentCat.id + '/' + sub.id);
-  renderGallery(sub.images, sub.name, true, 1); showView('view-gallery');
 }
 
 // Renderizar la galería con paginación
@@ -865,7 +861,9 @@ function renderSearchResults(query) {
     card.className = 'img-card';
     card.innerHTML = `
       <div class="img-wrap" data-url="${img.url}" data-title="${(img.title||'').replace(/"/g,'&quot;')}" data-sub="${(img.sub||'').replace(/"/g,'&quot;')}">
-        <img src="${img.url}" alt="${img.title||''}" style="height:${h}px" loading="lazy">
+        <div class="skeleton"></div>
+        <img src="${img.url}" alt="${img.title||''}" style="height:${h}px" loading="lazy"
+             onload="this.classList.add('loaded');this.previousElementSibling.classList.add('hidden')">
         <img class="watermark" src="https://i.ibb.co/wNbS2Yn1/Logo-Lienz-Dec-recortado-removebg-preview.png" alt="" draggable="false">
         <span class="zoom-hint">Ver completo</span>
       </div>
@@ -945,6 +943,73 @@ function navigateToHash() {
 }
 
 navigateToHash();
+
+// ── BOTÓN RETROCESO DEL DISPOSITIVO ───────────────────────────────────────
+// Usamos pushState en lugar de replaceState para que el historial quede registrado
+// y el botón físico de retroceso navegue dentro del catálogo
+
+function goHome() {
+  currentCat = null; currentSubcat = null;
+  updateBreadcrumb();
+  history.pushState({ view: 'home' }, '', window.location.pathname);
+  showView('view-home');
+}
+
+// Sobreescribir openCategory y openSubcat para usar pushState
+const _openCategory = openCategory;
+function openCategory(cat) {
+  currentCat = cat; currentSubcat = null; updateBreadcrumb();
+  history.pushState({ view: cat.subcats ? 'subcats' : 'gallery', catId: cat.id }, '', '#' + cat.id);
+  if (cat.subcats) { renderSubcats(cat); showView('view-subcats'); }
+  else { renderGallery(cat.images, cat.name, false, 1); showView('view-gallery'); }
+}
+
+function openSubcat(sub) {
+  currentSubcat = sub; updateBreadcrumb();
+  history.pushState({ view: 'gallery', catId: currentCat.id, subId: sub.id }, '', '#' + currentCat.id + '/' + sub.id);
+  renderGallery(sub.images, sub.name, true, 1); showView('view-gallery');
+}
+
+// Escuchar el botón de retroceso del dispositivo
+window.addEventListener('popstate', (e) => {
+  const state = e.state;
+
+  // Si el lightbox está abierto, cerrarlo primero
+  if (lightbox.classList.contains('open')) {
+    closeLightbox();
+    return;
+  }
+
+  if (!state || state.view === 'home') {
+    currentCat = null; currentSubcat = null;
+    updateBreadcrumb(); showView('view-home');
+    return;
+  }
+
+  const cat = catalogo.find(c => c.id === state.catId);
+  if (!cat) { goHome(); return; }
+
+  currentCat = cat;
+
+  if (state.view === 'subcats') {
+    currentSubcat = null; updateBreadcrumb();
+    renderSubcats(cat); showView('view-subcats');
+  } else if (state.view === 'gallery') {
+    if (state.subId && cat.subcats) {
+      const sub = cat.subcats.find(s => s.id === state.subId);
+      if (sub) {
+        currentSubcat = sub; updateBreadcrumb();
+        renderGallery(sub.images, sub.name, true, 1); showView('view-gallery');
+        return;
+      }
+    }
+    currentSubcat = null; updateBreadcrumb();
+    renderGallery(cat.images, cat.name, false, 1); showView('view-gallery');
+  }
+});
+
+// Estado inicial en el historial
+history.replaceState({ view: 'home' }, '', window.location.pathname);
 
 // Listener del buscador
 let searchTimer;
